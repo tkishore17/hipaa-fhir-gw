@@ -6,7 +6,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libffi-dev \
-    && rm -rf /var/lib/lists/*
+    && rm -rf /var/lib/apt/lists/*
 
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
@@ -21,11 +21,22 @@ FROM ${RUNTIME_BASE} AS runtime
 WORKDIR /app
 
 COPY --from=builder /opt/venv /opt/venv
-COPY ./app ./fhir-app
+COPY app app
+
+COPY app/wasm/filter.wasm /app/app/wasm/filter.wasm
+
+ENV WASM_MODULE_PATH="/app/app/wasm/filter.wasm"
 
 ENV PATH="/opt/venv/bin:$PATH"
 ENV PYTHONPATH="/opt/venv/lib/python3.11/site-packages:/app"
 
 EXPOSE 8000
 
-ENTRYPOINT ["/opt/venv/bin/uvicorn", "fhir-app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ENTRYPOINT ["python3", "-m", "uvicorn", "app.main:app", \
+    "--host", "0.0.0.0", \
+    "--port", "8443", \
+    "--ssl-keyfile", "/etc/ssl/certs/app/tls.key", \
+    "--ssl-certfile", "/etc/ssl/certs/app/tls.crt", \
+    "--ssl-ca-certs", "/etc/ssl/certs/app/ca.crt", \
+    "--ssl-cert-reqs", "2" \
+    ]

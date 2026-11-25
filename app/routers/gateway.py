@@ -43,10 +43,10 @@ async def process_fhir_packet(payload: dict, x_target_destination: str = Header(
     async with httpx.AsyncClient() as client:
         try:
             pass
-        except httpx.RequestError:
+        except httpx.RequestError as exc:
             raise HTTPException(
-                status=status.HTTP_502_BAD_GATEWAY,
-                detail=f"failed to reach whitelisted backedn: {exc}",
+                status_code=status.HTTP_502_BAD_GATEWAY,
+                detail=f"failed to reach whitelisted backend: {exc}",
             )
     return {
         "status": "success",

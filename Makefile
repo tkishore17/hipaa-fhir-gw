@@ -86,9 +86,9 @@ push: build
 push-dev: build-dev
 	@echo "${COLOR_GREEN} Tagging and pushing dev image to Google Artifact Registry...${COLOR_RESET}"
 	docker tag $(IMAGE_NAME):dev $(GAR_IMAGE_TAG):latest
-	#docker tag $(IMAGE_NAME):latest $(GAR_IMAGE_TAG):$(VERSION)
+	docker tag $(IMAGE_NAME):dev $(GAR_IMAGE_TAG):$(VERSION)
 	docker push $(GAR_IMAGE_TAG):latest
-	#docker push $(GAR_IMAGE_TAG):$(VERSION)
+	docker push $(GAR_IMAGE_TAG):$(VERSION)
 	@echo "${COLOR_YELLOW}Image is ready for GKE! Image URI: ${GAR_IMAGE_TAG}:latest${COLOR_RESET}"
 
 all: auth push
